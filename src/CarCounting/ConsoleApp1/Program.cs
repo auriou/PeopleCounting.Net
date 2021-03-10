@@ -13,10 +13,13 @@ namespace ConsoleApplication2
     class Program
     {
         // chargement de la vidéo
-        static VideoCapture cap = new VideoCapture(@"C:\Users\alexis\Documents\PeopleCounting.Net\videos\cars.mp4");
-        static BackgroundSubtractorMOG2 subtrac = new BackgroundSubtractorMOG2();
+
+        
         static void Main(string[] args)
         {
+            var root = @"C:\Users\p.auriou\Documents\GIT\PeopleCounting.Net\videos\";
+            VideoCapture cap = new VideoCapture($"{root}people.mp4");
+            BackgroundSubtractorMOG2 subtrac = new BackgroundSubtractorMOG2();
             Mat frame = new Mat();
             Image<Bgr, byte> img;
 
@@ -111,8 +114,8 @@ namespace ConsoleApplication2
 
                 }
 
-                CvInvoke.Imshow("sub", sub);
-                CvInvoke.Imshow("copy", copy);
+                //CvInvoke.Imshow("sub", sub);
+                //CvInvoke.Imshow("copy", copy);
                 CvInvoke.Imshow("img", img);
                 if (CvInvoke.WaitKey(1) == 27)
                 {
