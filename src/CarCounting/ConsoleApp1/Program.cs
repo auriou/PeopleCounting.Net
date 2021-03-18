@@ -17,6 +17,13 @@ namespace ConsoleApplication2
         
         static void Main(string[] args)
         {
+
+            var rect1 = new Rectangle(10, 10, 50, 50);
+            var rect2 = new Rectangle(70, 70, 50, 50);
+
+            var test = Rectangle.Intersect(rect1, rect2);
+
+
             var root = @"C:\Users\p.auriou\Documents\GIT\PeopleCounting.Net\videos\";
             VideoCapture cap = new VideoCapture($"{root}people.mp4");
             BackgroundSubtractorMOG2 subtrac = new BackgroundSubtractorMOG2();
