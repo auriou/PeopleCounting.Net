@@ -1,10 +1,9 @@
-﻿using Emgu.CV;
-using Emgu.CV.Structure;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Emgu.CV;
 
-namespace ConsoleApp2
+namespace ObjectCounting
 {
     public class FileCapture : ICaptureRun
     {

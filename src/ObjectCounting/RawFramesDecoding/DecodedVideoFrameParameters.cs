@@ -1,6 +1,6 @@
-﻿using SimpleRtspPlayer.RawFramesDecoding.FFmpeg;
+﻿using ObjectCounting.RawFramesDecoding.FFmpeg;
 
-namespace SimpleRtspPlayer.RawFramesDecoding
+namespace ObjectCounting.RawFramesDecoding
 {
     class DecodedVideoFrameParameters
     {

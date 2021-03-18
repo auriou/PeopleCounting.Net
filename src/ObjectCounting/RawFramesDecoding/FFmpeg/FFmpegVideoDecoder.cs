@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using ObjectCounting.RawFramesDecoding.DecodedFrames;
 using RtspClientSharp.RawFrames.Video;
-using SimpleRtspPlayer.RawFramesDecoding.DecodedFrames;
 
-namespace SimpleRtspPlayer.RawFramesDecoding.FFmpeg
+namespace ObjectCounting.RawFramesDecoding.FFmpeg
 {
     class FFmpegVideoDecoder
     {

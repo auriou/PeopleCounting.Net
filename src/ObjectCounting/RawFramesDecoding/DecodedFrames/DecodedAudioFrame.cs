@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleRtspPlayer.RawFramesDecoding.DecodedFrames
+namespace ObjectCounting.RawFramesDecoding.DecodedFrames
 {
     class DecodedAudioFrame : IDecodedAudioFrame
     {

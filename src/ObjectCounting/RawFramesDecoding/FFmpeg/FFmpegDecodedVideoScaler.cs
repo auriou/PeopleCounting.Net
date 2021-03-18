@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleRtspPlayer.RawFramesDecoding.FFmpeg
+namespace ObjectCounting.RawFramesDecoding.FFmpeg
 {
     class FFmpegDecodedVideoScaler
     {

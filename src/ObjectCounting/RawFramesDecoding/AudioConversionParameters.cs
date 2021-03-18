@@ -1,4 +1,4 @@
-﻿namespace SimpleRtspPlayer.RawFramesDecoding
+﻿namespace ObjectCounting.RawFramesDecoding
 {
     class AudioConversionParameters
     {

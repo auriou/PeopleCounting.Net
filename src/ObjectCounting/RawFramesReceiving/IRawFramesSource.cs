@@ -1,7 +1,7 @@
 ﻿using System;
 using RtspClientSharp.RawFrames;
 
-namespace SimpleRtspPlayer.RawFramesReceiving
+namespace ObjectCounting.RawFramesReceiving
 {
     interface IRawFramesSource
     {

@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace SimpleRtspPlayer.RawFramesDecoding
+namespace ObjectCounting.RawFramesDecoding
 {
     public class TransformParameters
     {

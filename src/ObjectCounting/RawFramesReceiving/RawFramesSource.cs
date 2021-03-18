@@ -6,7 +6,7 @@ using RtspClientSharp;
 using RtspClientSharp.RawFrames;
 using RtspClientSharp.Rtsp;
 
-namespace SimpleRtspPlayer.RawFramesReceiving
+namespace ObjectCounting.RawFramesReceiving
 {
     class RawFramesSource : IRawFramesSource
     {

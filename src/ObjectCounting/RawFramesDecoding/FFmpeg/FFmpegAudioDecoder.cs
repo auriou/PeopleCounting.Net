@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using ObjectCounting.RawFramesDecoding.DecodedFrames;
 using RtspClientSharp.RawFrames.Audio;
-using SimpleRtspPlayer.RawFramesDecoding.DecodedFrames;
 
-namespace SimpleRtspPlayer.RawFramesDecoding.FFmpeg
+namespace ObjectCounting.RawFramesDecoding.FFmpeg
 {
     class FFmpegAudioDecoder
     {

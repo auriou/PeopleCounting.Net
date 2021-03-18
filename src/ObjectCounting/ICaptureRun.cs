@@ -1,8 +1,8 @@
-﻿using Emgu.CV;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Emgu.CV;
 
-namespace ConsoleApp2
+namespace ObjectCounting
 {
     public interface ICaptureRun
     {

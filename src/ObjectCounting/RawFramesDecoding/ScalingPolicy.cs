@@ -1,4 +1,4 @@
-﻿namespace SimpleRtspPlayer.RawFramesDecoding
+﻿namespace ObjectCounting.RawFramesDecoding
 {
     public enum ScalingPolicy
     {

@@ -1,4 +1,4 @@
-﻿namespace SimpleRtspPlayer.RawFramesDecoding.DecodedFrames
+﻿namespace ObjectCounting.RawFramesDecoding.DecodedFrames
 {
     public readonly struct AudioFrameFormat
     {

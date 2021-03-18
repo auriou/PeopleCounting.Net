@@ -1,4 +1,4 @@
-﻿namespace SimpleRtspPlayer.RawFramesDecoding.FFmpeg
+﻿namespace ObjectCounting.RawFramesDecoding.FFmpeg
 {
     enum FFmpegAudioCodecId
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace SimpleRtspPlayer.RawFramesDecoding
+namespace ObjectCounting.RawFramesDecoding
 {
     [Serializable]
     public class DecoderException : Exception

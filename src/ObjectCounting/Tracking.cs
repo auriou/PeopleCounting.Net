@@ -1,33 +1,25 @@
-﻿using Emgu.CV;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Emgu.CV;
 
-namespace ConsoleApp2
+namespace ObjectCounting
 {
     public class Tracking
     {
+        private readonly ConfigCounter _config;
         public int MaxId { get; set; }
-        private List<ObjTracking> _trackers;
-        private readonly Func<Rectangle, bool> enterFunc;
-        private readonly Func<Rectangle, bool> outFunc;
-        private readonly bool noTrack;
+        private readonly List<ObjTracking> _trackers;
 
-        public Tracking(Func<Rectangle, bool> enterFunc, Func<Rectangle, bool> outFunc, bool noTrack = false)
+        public Tracking(ConfigCounter config)
         {
+            _config = config;
             _trackers = new List<ObjTracking>();
-            this.enterFunc = enterFunc;
-            this.outFunc = outFunc;
-            this.noTrack = noTrack;
         }
 
         public void AddObjects(List<Rectangle> rects, Mat mat)
         {
-            if (!noTrack && mat.NumberOfChannels != 3)
-            {
-                CvInvoke.CvtColor(mat, mat, Emgu.CV.CvEnum.ColorConversion.Bgra2Bgr);
-            }
             //for (int i = _trackers.Count - 1; i >= 0; i--)
             //{
             //    var exist = Find(_trackers[i].Rectangle, rects);
@@ -51,11 +43,11 @@ namespace ConsoleApp2
                 var res = Find(rect);
                 if (res == null)
                 {
-                    var origin = enterFunc(rect) ? Origin.Top : (outFunc(rect) ? Origin.Bottom : Origin.Center);
-                    if (origin != Origin.Center)
+                    var origin = _config.EntryArea(rect) ? Origin.Entry : (_config.ExitArea(rect) ? Origin.Exit : Origin.Transit);
+                    if (origin != Origin.Transit)
                     {
                         var obj = new ObjTracking { Rectangle = rect, Origin = origin };
-                        if (!noTrack)
+                        if (_config.Tracker)
                         {
                             var tracker = new TrackerCSRT();
                             tracker.Init(mat, rect);
@@ -109,8 +101,8 @@ namespace ConsoleApp2
                     var update = _trackers.FirstOrDefault(p => p.Id == id.Id);
                     if (update != null)
                     {
-                        if ((id.Origin == Origin.Top && outFunc(id.Rectangle)) ||
-                            (id.Origin == Origin.Bottom && enterFunc(id.Rectangle)))
+                        if ((id.Origin == Origin.Entry && _config.ExitArea(id.Rectangle)) ||
+                            (id.Origin == Origin.Exit && _config.EntryArea(id.Rectangle)))
                         {
                             //_trackers.Remove(update);
                         }
@@ -118,6 +110,18 @@ namespace ConsoleApp2
                         update.Rectangle = id.Rectangle;
                         update.NoView = id.NoView;
                     }
+                }
+            }
+        }
+
+        public void UpdateTrackers(Mat mat)
+        {
+            if (_config.Tracker)
+            {
+                foreach (var tracker in _trackers)
+                {
+                    tracker.Tracker.Update(mat, out var outRect);
+                    tracker.Rectangle = outRect;
                 }
             }
         }

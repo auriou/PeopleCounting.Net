@@ -1,7 +1,7 @@
-﻿using Emgu.CV;
-using System.Drawing;
+﻿using System.Drawing;
+using Emgu.CV;
 
-namespace ConsoleApp2
+namespace ObjectCounting
 {
     public class ObjTracking
     {
@@ -13,8 +13,8 @@ namespace ConsoleApp2
     }
     public enum Origin
     {
-        Center,
-        Top,
-        Bottom
+        Transit,
+        Entry,
+        Exit
     }
 }

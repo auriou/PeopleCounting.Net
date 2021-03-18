@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SimpleRtspPlayer.RawFramesDecoding.FFmpeg
+namespace ObjectCounting.RawFramesDecoding.FFmpeg
 {
     class FFmpegAudioPInvoke
     {

@@ -1,20 +1,16 @@
-﻿using Emgu.CV;
-using Emgu.CV.Structure;
-using RtspClientSharp;
-using RtspClientSharp.RawFrames.Video;
-using RtspClientSharp.Rtsp;
-using SimpleRtspPlayer.RawFramesDecoding;
-using SimpleRtspPlayer.RawFramesDecoding.FFmpeg;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Emgu.CV;
+using Emgu.CV.Structure;
+using ObjectCounting.RawFramesDecoding;
+using ObjectCounting.RawFramesDecoding.FFmpeg;
+using RtspClientSharp;
+using RtspClientSharp.RawFrames.Video;
 
-namespace ConsoleApp2
+namespace ObjectCounting
 {
     public class RtspCapture : ICaptureRun
     {
