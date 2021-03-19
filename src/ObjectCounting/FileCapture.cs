@@ -8,6 +8,7 @@ namespace ObjectCounting
     public class FileCapture : ICaptureRun
     {
         private readonly string _videoFile;
+        private int _camera = -1;
         private VideoCapture _capture;
         private CancellationTokenSource _cancellationTokenSource;
         private object _verrou = new object();
@@ -16,6 +17,12 @@ namespace ObjectCounting
         {
             _videoFile = videoFile;
             _capture = new VideoCapture(_videoFile);
+        }
+
+        public FileCapture(int camera)
+        {
+            _camera = camera;
+            _capture = new VideoCapture(camera);
         }
 
         public Action<Mat> ImageReceive { get; set ; }
@@ -38,8 +45,11 @@ namespace ObjectCounting
                     _capture.Read(frame);
                     if(frame.IsEmpty)
                     {
-                        _capture = new VideoCapture(_videoFile);
-                        _capture.Read(frame);
+                        if(_camera < 0)
+                        {
+                            _capture = new VideoCapture(_videoFile);
+                        }
+                        continue;
                     }
 
                     ImageReceive(frame);

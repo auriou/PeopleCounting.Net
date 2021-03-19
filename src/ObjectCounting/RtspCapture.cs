@@ -17,7 +17,6 @@ namespace ObjectCounting
         private readonly Dictionary<FFmpegVideoCodecId, FFmpegVideoDecoder> _videoDecodersMap = new Dictionary<FFmpegVideoCodecId, FFmpegVideoDecoder>();
         private readonly Size resize;
         private readonly string url;
-        private Bitmap bmp;
         private TransformParameters transformParameters;
         private CancellationTokenSource _cancellationTokenSource;
         public Action<Mat> ImageReceive { get; set; }
@@ -63,8 +62,6 @@ namespace ObjectCounting
         public void Stop()
         {
             _cancellationTokenSource?.Cancel();
-            bmp?.Dispose();
-            bmp = null;
         }
 
         private void RtspClient_FrameReceived(object sender, RtspClientSharp.RawFrames.RawFrame e)
@@ -88,13 +85,8 @@ namespace ObjectCounting
             var decodedVideoFrame = decoder.TryDecode(rawVideoFrame);
             if (decodedVideoFrame != null)
             {
-                if (bmp != null)
-                {
-                    bmp.Dispose();
-                }
-
                 transformParameters = new TransformParameters(RectangleF.Empty, new Size(resize.Width, resize.Height), ScalingPolicy.Stretch, PixelFormat.Bgra32, ScalingQuality.FastBilinear);
-                bmp = new Bitmap(resize.Width, resize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using var bmp = new Bitmap(resize.Width, resize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                 // Lock the bitmap's bits.  
                 var bmpData = bmp.LockBits(new Rectangle(0,0, resize.Width, resize.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, bmp.PixelFormat);

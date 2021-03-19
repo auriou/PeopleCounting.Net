@@ -52,6 +52,8 @@ namespace ObjectCounting
         public void SimpleProcess(Mat frame)
         {
             if (frame.IsEmpty) return;
+           
+
             var img = frame.ToImage<Bgr, byte>();
 
             CvInvoke.Imshow("img", img);
@@ -65,106 +67,109 @@ namespace ObjectCounting
 
         public void Process(Mat frameSend)
         {
-            lock (_verrou)
+            //lock (_verrou)
+            //{
+            if (frameSend.IsEmpty) return;
+            using var frame = frameSend;
+            if (_config.Tracker && frame.NumberOfChannels != 3)
             {
-                if (frameSend.IsEmpty) return;
-                var frame = frameSend.Clone();
-                if (_config.Tracker && frame.NumberOfChannels != 3)
+                CvInvoke.CvtColor(frame, frame, Emgu.CV.CvEnum.ColorConversion.Bgra2Bgr);
+            }
+
+            using var img = frame.ToImage<Bgr, byte>();
+
+            if (DateTime.Now.Subtract(_lastExecute) > TimeSpan.FromMilliseconds(_config.TimeRunDetectionMs))
+            {
+                _lastExecute = DateTime.Now;
+
+                using var imgDnn = frame.ToImage<Bgr, byte>();
+                CvInvoke.CvtColor(img, imgDnn, ColorConversion.Bgr2Rgb);
+                var size = new Size(
+                    imgDnn.Width - (imgDnn.Width * 2 / 100),
+                    imgDnn.Height - (imgDnn.Height * 2 / 100));
+                var scalar = new MCvScalar(104, 117, 123);
+                using var blob = DnnInvoke.BlobFromImage(imgDnn, 0.005, size, scalar, true);
+
+
+                _net.SetInput(blob, "data");
+                using var detections = _net.Forward();
+
+                if (true/*classProb == 15*/)
                 {
-                    CvInvoke.CvtColor(frame, frame, Emgu.CV.CvEnum.ColorConversion.Bgra2Bgr);
-                }
+                    var rectList = new List<Rectangle>();
+                    float[,,,] flt = (float[,,,])detections.GetData();
 
-                var img = frame.ToImage<Bgr, byte>();
-
-                if (DateTime.Now.Subtract(_lastExecute) > TimeSpan.FromMilliseconds(_config.TimeRunDetectionMs))
-                {
-                    _lastExecute = DateTime.Now;
-
-                    var imgDnn = frame.ToImage<Bgr, byte>();
-                    CvInvoke.CvtColor(img, imgDnn, ColorConversion.Bgr2Rgb);
-                    var size = new Size(
-                        imgDnn.Width - (imgDnn.Width * 2 / 100),
-                        imgDnn.Height - (imgDnn.Height * 2 / 100));
-                    var scalar = new MCvScalar(104, 117, 123);
-                    var blob = DnnInvoke.BlobFromImage(imgDnn, 0.005, size, scalar, true);
-
-                    _net.SetInput(blob, "data");
-                    var detections = _net.Forward();
-
-                    if (true/*classProb == 15*/)
+                    for (int x = 0; x < flt.GetLength(2); x++)
                     {
-                        var rectList = new List<Rectangle>();
-                        float[,,,] flt = (float[,,,])detections.GetData();
-
-                        for (int x = 0; x < flt.GetLength(2); x++)
+                        if (flt[0, 0, x, 2] > 0.4)
                         {
-                            if (flt[0, 0, x, 2] > 0.4)
+                            var classe = (int)flt[0, 0, x, 1];
+                            if (_classesNetwork.Contains(classe))
                             {
-                                var classe = (int)flt[0, 0, x, 1];
-                                if (_classesNetwork.Contains(classe))
-                                {
-                                    int left = Convert.ToInt32(flt[0, 0, x, 3] * frame.Width);
-                                    int top = Convert.ToInt32(flt[0, 0, x, 4] * frame.Height);
-                                    int right = Convert.ToInt32(flt[0, 0, x, 5] * frame.Width);
-                                    int bottom = Convert.ToInt32(flt[0, 0, x, 6] * frame.Height);
+                                int left = Convert.ToInt32(flt[0, 0, x, 3] * frame.Width);
+                                int top = Convert.ToInt32(flt[0, 0, x, 4] * frame.Height);
+                                int right = Convert.ToInt32(flt[0, 0, x, 5] * frame.Width);
+                                int bottom = Convert.ToInt32(flt[0, 0, x, 6] * frame.Height);
 
-                                    var rectSelect = new Rectangle(left, top, right - left, bottom - top);
-                                    rectList.Add(rectSelect);
-                                }
+                                var rectSelect = new Rectangle(left, top, right - left, bottom - top);
+                                rectList.Add(rectSelect);
                             }
                         }
-
-                        _tracking.AddObjects(rectList, frame);
                     }
-                }
-                else if(_config.Tracker && DateTime.Now.Subtract(_lastExecuteTracker) > TimeSpan.FromMilliseconds(_config.TimeRunTrackingMs))
-                {
-                    _lastExecuteTracker = DateTime.Now;
-                    _tracking.UpdateTrackers(frame);
-                }
 
-                foreach (var obj in _tracking.GetTrackings())
-                {
-                    var rect = obj.Rectangle;
-                    img.Draw(rect, new Bgr(0, 0, 255), 2);
-                    CvInvoke.PutText(
-                       img,
-                       $"{obj.Id}-{obj.Origin}",
-                       new Point(rect.Left, rect.Top + rect.Height / 3),
-                       FontFace.HersheyDuplex,
-                       0.5,
-                       new Bgr(0, 255, 0).MCvScalar);
-                }
-
-                CvInvoke.PutText(
-                    img,
-                    $"Count : {_tracking.Entry - _tracking.Exit}",
-                    new Point(5, 10),
-                    FontFace.HersheyDuplex,
-                    0.5,
-                    new Bgr(0, 255, 0).MCvScalar);
-                CvInvoke.PutText(
-                    img,
-                    $"Entry : {_tracking.Entry}",
-                    new Point(5, 30),
-                    FontFace.HersheyDuplex,
-                    0.5,
-                    new Bgr(0, 255, 0).MCvScalar);
-                CvInvoke.PutText(
-                    img,
-                    $"Exit : {_tracking.Exit}",
-                    new Point(5, 50),
-                    FontFace.HersheyDuplex,
-                    0.5,
-                    new Bgr(0, 255, 0).MCvScalar);
-
-
-                CvInvoke.Imshow("img", img);
-                if (CvInvoke.WaitKey(1) == 27)
-                {
-
+                    _tracking.AddObjects(rectList, frame);
                 }
             }
+            else if (_config.Tracker && DateTime.Now.Subtract(_lastExecuteTracker) > TimeSpan.FromMilliseconds(_config.TimeRunTrackingMs))
+            {
+                _lastExecuteTracker = DateTime.Now;
+                _tracking.UpdateTrackers(frame);
+            }
+
+            foreach (var obj in _tracking.GetTrackings())
+            {
+                var rect = obj.Rectangle;
+                img.Draw(rect, new Bgr(0, 0, 255), 2);
+                CvInvoke.PutText(
+                   img,
+                   $"{obj.Id}-{obj.Origin}",
+                   new Point(rect.Left, rect.Top + rect.Height / 3),
+                   FontFace.HersheyDuplex,
+                   0.5,
+                   new Bgr(0, 255, 0).MCvScalar);
+            }
+
+            CvInvoke.PutText(
+                img,
+                $"Count : {_tracking.Entry - _tracking.Exit}",
+                new Point(5, 10),
+                FontFace.HersheyDuplex,
+                0.5,
+                new Bgr(0, 255, 0).MCvScalar);
+            CvInvoke.PutText(
+                img,
+                $"Entry : {_tracking.Entry}",
+                new Point(5, 30),
+                FontFace.HersheyDuplex,
+                0.5,
+                new Bgr(0, 255, 0).MCvScalar);
+            CvInvoke.PutText(
+                img,
+                $"Exit : {_tracking.Exit}",
+                new Point(5, 50),
+                FontFace.HersheyDuplex,
+                0.5,
+                new Bgr(0, 255, 0).MCvScalar);
+
+
+            CvInvoke.Imshow("img", img);
+            if (CvInvoke.WaitKey(1) == 27)
+            {
+
+            }
+            //}
+
+            frameSend.Dispose();
         }
     }
 }
