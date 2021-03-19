@@ -10,6 +10,7 @@ namespace ObjectCounting
         public Rectangle Rectangle { get; set; }
         public int NoView { get; set; }
         public Origin Origin { get; set; }
+        public Origin Destination { get; set; }
     }
     public enum Origin
     {

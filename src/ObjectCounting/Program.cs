@@ -13,7 +13,7 @@ namespace ObjectCounting
         {
             var config = new ConfigCounter
             {
-                TimeRunDetectionMs = 500,
+                TimeRunDetectionMs = 300,
                 TimeRunTrackingMs = 100,
                 Tracker = true,
                 Classes = new List<string> { "person" },

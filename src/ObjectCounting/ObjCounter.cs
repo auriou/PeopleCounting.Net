@@ -136,6 +136,28 @@ namespace ObjectCounting
                        new Bgr(0, 255, 0).MCvScalar);
                 }
 
+                CvInvoke.PutText(
+                    img,
+                    $"Count : {_tracking.Entry - _tracking.Exit}",
+                    new Point(5, 10),
+                    FontFace.HersheyDuplex,
+                    0.5,
+                    new Bgr(0, 255, 0).MCvScalar);
+                CvInvoke.PutText(
+                    img,
+                    $"Entry : {_tracking.Entry}",
+                    new Point(5, 30),
+                    FontFace.HersheyDuplex,
+                    0.5,
+                    new Bgr(0, 255, 0).MCvScalar);
+                CvInvoke.PutText(
+                    img,
+                    $"Exit : {_tracking.Exit}",
+                    new Point(5, 50),
+                    FontFace.HersheyDuplex,
+                    0.5,
+                    new Bgr(0, 255, 0).MCvScalar);
+
 
                 CvInvoke.Imshow("img", img);
                 if (CvInvoke.WaitKey(1) == 27)

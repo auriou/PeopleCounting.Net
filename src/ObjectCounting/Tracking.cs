@@ -11,6 +11,8 @@ namespace ObjectCounting
         private readonly ConfigCounter _config;
         public int MaxId { get; set; }
         private readonly List<ObjTracking> _trackers;
+        public int Entry { get; set; }
+        public int Exit { get; set; }
 
         public Tracking(ConfigCounter config)
         {
@@ -20,22 +22,6 @@ namespace ObjectCounting
 
         public void AddObjects(List<Rectangle> rects, Mat mat)
         {
-            //for (int i = _trackers.Count - 1; i >= 0; i--)
-            //{
-            //    var exist = Find(_trackers[i].Rectangle, rects);
-            //    if(!exist) _trackers.RemoveAt(i);
-            //    else
-            //    {
-            //        _trackers[i].Tracker.Update(mat, out var outRect);
-            //        //if (outRect.IsEmpty) _trackers.RemoveAt(i);
-            //    }
-            //}
-
-            //if(rects.Count != _trackers.Count)
-            //{
-            //    if (rects.Count == 0) _trackers.RemoveAll(p => p != null);
-            //}
-
             var ids = new List<ObjTracking>();
 
             foreach (var rect in rects)
@@ -66,23 +52,22 @@ namespace ObjectCounting
 
             for (int i = _trackers.Count - 1; i >= 0; i--)
             {
-                Rectangle outRect = Rectangle.Empty;
+                var outRect = Rectangle.Empty;
                 _trackers[i].Tracker?.Update(mat, out outRect);
                 var isIn = ids.Where(p => p.Id > 0).Select(p => p.Id).Contains(_trackers[i].Id);
                 if (!isIn)
                 {
                     _trackers[i].NoView++;
-                    if (_trackers[i].NoView > 10)
+                    if (_trackers[i].NoView > 10 || (_config.Tracker && outRect.IsEmpty && _trackers[i].NoView > 5))
                     {
+                        if (_trackers[i].Destination == Origin.Exit)
+                            Entry++;
+                        if (_trackers[i].Destination == Origin.Entry)
+                            Exit++;
                         _trackers[i].Tracker?.Dispose();
                         _trackers.RemoveAt(i);
                     }
-                    else if (outRect.IsEmpty && _trackers[i].NoView > 5)
-                    {
-                        _trackers[i].Tracker?.Dispose();
-                        _trackers.RemoveAt(i);
-                    }
-                    else
+                    else if(_config.Tracker)
                     {
                         _trackers[i].Rectangle = outRect;
                     }
@@ -101,12 +86,10 @@ namespace ObjectCounting
                     var update = _trackers.FirstOrDefault(p => p.Id == id.Id);
                     if (update != null)
                     {
-                        if ((id.Origin == Origin.Entry && _config.ExitArea(id.Rectangle)) ||
-                            (id.Origin == Origin.Exit && _config.EntryArea(id.Rectangle)))
-                        {
-                            //_trackers.Remove(update);
-                        }
-
+                        if (update.Origin == Origin.Entry && _config.ExitArea(update.Rectangle))
+                            update.Destination = Origin.Exit;
+                        if (update.Origin == Origin.Exit && _config.EntryArea(update.Rectangle))
+                            update.Destination = Origin.Entry;
                         update.Rectangle = id.Rectangle;
                         update.NoView = id.NoView;
                     }
