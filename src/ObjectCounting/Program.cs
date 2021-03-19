@@ -25,7 +25,7 @@ namespace ObjectCounting
             var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
             var file = $"{root}\\example_01.mp4";
 
-            var videoFile = new FileCapture(file) {ImageReceive = counter.Process};
+            var videoFile = new ObjectVideoCapture(file) {ImageReceive = counter.Process};
             await videoFile.Start();
 
             // 16/9
