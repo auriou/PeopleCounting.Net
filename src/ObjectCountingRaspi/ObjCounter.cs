@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace ObjectCounting
 {
-    //https://stackoverflow.com/questions/64552977/how-to-convert-from-h264-to-ts-using-ffmpeg-wrapper-for-c-net
     public class ObjCounter
     {
         private readonly ConfigCounter _config;
@@ -19,9 +18,12 @@ namespace ObjectCounting
         private Net _net;
         private DateTime _lastExecute;
         private DateTime _lastExecuteTracker;
+        private int _previousEntry;
+        private int _previousExit;
         private object _verrou = new object();
         public string[] ClassesNetwork { get; }
         private List<int> _classesNetwork = new List<int>();
+
         public ObjCounter(ConfigCounter config)
         {
             _config = config;
@@ -41,20 +43,21 @@ namespace ObjectCounting
             _tracking = new Tracking(config);
 
             _net = DnnInvoke.ReadNetFromCaffe(
-                $"{_root}\\MobileNetSSD_deploy.prototxt",
-                $"{_root}\\MobileNetSSD_deploy.caffemodel");
+                Path.Combine(_root,"MobileNetSSD_deploy.prototxt"),
+                Path.Combine(_root, "MobileNetSSD_deploy.caffemodel"));
             _net.SetPreferableBackend(Emgu.CV.Dnn.Backend.Default);
             _net.SetPreferableTarget(Emgu.CV.Dnn.Target.OpenCL);
             _lastExecute = DateTime.Now;
             _lastExecuteTracker = DateTime.Now;
+            _previousEntry = 0;
+            _previousExit = 0;
         }
 
         public void SimpleProcess(Mat frame)
         {
             if (frame.IsEmpty) return;
-           
-
-            var img = frame.ToImage<Bgr, byte>();
+          
+            using var img = frame.ToImage<Bgr, byte>();
 
             CvInvoke.Imshow("img", img);
             if (CvInvoke.WaitKey(1) == 27)
@@ -63,12 +66,8 @@ namespace ObjectCounting
             }
 
         }
-
-
         public void Process(Mat frameSend)
         {
-            //lock (_verrou)
-            //{
             if (frameSend.IsEmpty) return;
             using var frame = frameSend;
             if (_config.Tracker && frame.NumberOfChannels != 3)
@@ -139,6 +138,14 @@ namespace ObjectCounting
                    new Bgr(0, 255, 0).MCvScalar);
             }
 
+            if (_previousEntry != _tracking.Entry || _previousExit != _tracking.Exit)
+            {
+                _config.ChangeCount(new ChangeCounter { Entry = _tracking.Entry, Exit = _tracking.Exit });
+                _previousEntry = _tracking.Entry;
+                _previousExit = _tracking.Exit;
+            }
+
+
             CvInvoke.PutText(
                 img,
                 $"Count : {_tracking.Entry - _tracking.Exit}",
@@ -167,7 +174,6 @@ namespace ObjectCounting
             {
 
             }
-            //}
 
             frameSend.Dispose();
         }

@@ -18,15 +18,23 @@ namespace ObjectCounting
                 Tracker = true,
                 Classes = new List<string> { "person" },
                 EntryArea = r => r.Y < 20,
-                ExitArea = r => r.Y + r.Height > 200
+                ExitArea = r => r.Y + r.Height > 200,
+                ChangeCount = ChangeCount
             };
             
             var counter = new ObjCounter(config);
-            var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
-            var file = $"{root}\\example_01.mp4";
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "example_01.mp4");
 
-            var videoFile = new ObjectVideoCapture(0) {ImageReceive = counter.Process};
+            var videoFile = new ObjectVideoCapture(file)
+            {
+                ImageReceive = counter.Process,
+            };
             await videoFile.Start();
+        }
+
+        static void ChangeCount(ChangeCounter count)
+        {
+            Console.WriteLine($"{count.Entry}-{count.Exit}={count.Entry- count.Exit}");
         }
 
     }

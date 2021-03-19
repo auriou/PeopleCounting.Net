@@ -12,5 +12,6 @@ namespace ObjectCounting
         public int TimeRunTrackingMs { get; set; }
         public Func<Rectangle, bool> EntryArea { get; set; }
         public Func<Rectangle, bool> ExitArea { get; set; }
+        public Action<ChangeCounter> ChangeCount { get; set; }
     }
 }
