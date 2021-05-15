@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using Emgu.CV;
@@ -60,6 +61,8 @@ namespace ObjectCounting
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e.Message);
+                    System.Diagnostics.Debug.WriteLine(e.Message);
                     await Task.Delay(delay);
                 }
             }
